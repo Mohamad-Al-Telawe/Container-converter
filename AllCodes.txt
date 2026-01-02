@@ -1,0 +1,313 @@
+  app.js
+  const fileInput = document.getElementById("fileInput");
+  const convertBtn = document.getElementById("convertBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const tableBody = document.querySelector("#previewTable tbody");
+  const stats = document.getElementById("stats");
+
+  let PhenixData = [];
+
+  convertBtn.onclick = async () => {
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("اختر ملف Excel");
+        return;
+    }
+
+    const rawData = await readExcel(file);
+    console.log("✅ rawData:", rawData);
+    console.log("📏 rawData length:", rawData.length);
+
+    PhenixData = transform(rawData);
+    console.log("🚀 PhenixData:", PhenixData);
+    console.log("📐 PhenixData length:", PhenixData.length);
+
+    renderTable(PhenixData);
+
+    stats.innerText = `عدد الأسطر: ${PhenixData.length}`;
+    downloadBtn.disabled = false;
+  };
+
+  downloadBtn.onclick = () => {
+    downloadExcel(PhenixData);
+  };
+
+  function transform(data) {
+    console.log("🔁 transform started");
+
+    const result = [];
+
+    let currentItemCode = null;
+    let currentPrice = 0;
+
+    // 1️⃣ استخراج المقاسات من صف QTY
+    const sizeMap = {};
+    let headerRowFound = false;
+
+    for (const row of data) {
+        // صف المقاسات يحتوي QTY
+        if (row.__EMPTY_3 === "QTY") {
+          Object.keys(row).forEach((key) => {
+              const val = row[key];
+              if (typeof val === "number" && val > 0) {
+                sizeMap[key] = val; // مثال: "__EMPTY_7" => 36
+              }
+          });
+
+          headerRowFound = true;
+          console.log("📏 Sizes detected:", sizeMap);
+          break;
+        }
+    }
+
+    if (!headerRowFound) {
+        console.error("❌ لم يتم العثور على صف المقاسات");
+        return [];
+    }
+
+    // 2️⃣ المرور على البيانات
+    data.forEach((row, index) => {
+        const itemCell = row.__EMPTY;
+        const color = row.__EMPTY_1;
+        const priceCell = row.__EMPTY_5;
+
+        // مادة جديدة
+        if (typeof itemCell === "string" && itemCell.trim() !== "") {
+          currentItemCode = itemCell.trim();
+          currentPrice = Number(priceCell) || 0;
+
+          console.log(`🆕 New Item ${currentItemCode} at row ${index}`);
+        }
+
+        if (!currentItemCode || !color || typeof color !== "string") return;
+
+        // 3️⃣ إنشاء السطور حسب المقاسات الفعلية فقط
+        Object.entries(sizeMap).forEach(([colKey, size]) => {
+          const qty = Number(row[colKey]) || 0;
+
+          if (qty > 0) {
+              result.push({
+                code: currentItemCode,
+                name: extractClassifyName(currentItemCode),
+                color: color.trim(),
+                size: size,
+                quantity: qty,
+                unit_price: currentPrice,
+                total: qty * currentPrice,
+              });
+
+              console.log(
+                `➕ Added | ${currentItemCode} | ${color} | ${size} | Qty:${qty}`
+              );
+          }
+        });
+    });
+
+    console.log("✅ transform finished");
+    console.log("📦 Final rows count:", result.length);
+
+    return result;
+  }
+
+  function renderTable(rows) {
+    tableBody.innerHTML = "";
+    rows.forEach((r) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+        <td>${r.code}</td>
+        <td>${r.name}</td>
+        <td>${r.color}</td>
+        <td>${r.size}</td>
+        <td>${r.quantity}</td>
+        <td>${r.unit_price}</td>
+        <td>${r.total}</td>
+      `;
+        tableBody.appendChild(tr);
+    });
+  }
+
+  function extractClassifyName(code) {
+    let classify = "";
+    for (const i in code) {
+        // if (!Object.hasOwn(code, i)) continue;
+        if (i == 0) {
+          continue;
+        }
+        if (isNaN(Number(code[i]))) {
+          classify += code[i];
+          // console.log(code[i]);
+        }
+    }
+
+    // console.log(classify);
+    return classify;
+  }
+
+  // extractClassifyName("ZX3020");
+
+
+  excel.js
+  function readExcel(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        console.log("📥 File loaded");
+
+        const data = new Uint8Array(e.target.result);
+        console.log("📦 ArrayBuffer size:", data.length);
+
+        const workbook = XLSX.read(data, { type: "array" });
+
+        console.log("📄 Sheets:", workbook.SheetNames);
+
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: 0 });
+
+        console.log("📊 Raw JSON from Excel:", json);
+
+        resolve(json);
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+
+  function downloadExcel(rows) {
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Phenix");
+    XLSX.writeFile(wb, "Phenix.xlsx");
+  }
+
+
+  index.html 
+  <!DOCTYPE html>
+  <html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Phenix Converter</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <div class="container">
+      <h1>تحويل ملف الكونتينر إلى Phenix</h1>
+
+      <div class="upload-box">
+        <input type="file" id="fileInput" accept=".xlsx" />
+        <button id="convertBtn">تحويل الملف</button>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="table-wrapper">
+        <table id="previewTable">
+          <thead>
+            <tr>
+              <th>الكود</th>
+              <th>الصنف</th>
+              <th>اللون</th>
+              <th>المقاس</th>
+              <th>العدد</th>
+              <th>الإفرادي</th>
+              <th>الإجمالي</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <button id="downloadBtn" disabled>تنزيل ملف Phenix</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="excel.js"></script>
+    <script src="app.js"></script>
+  </body>
+  </html>
+
+  style.css
+  body {
+    font-family: "Cairo", sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #1e293b;
+  }
+
+  .upload-box {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #2563eb;
+    color: #fff;
+    font-size: 15px;
+  }
+
+  button:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+  }
+
+  .table-wrapper {
+    max-height: 400px;
+    overflow: auto;
+    margin-top: 20px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: center;
+  }
+
+  th {
+    background: #f1f5f9;
+    position: sticky;
+    top: 0;
+  }
+
+  .stats {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #334155;
+    text-align: center;
+  }
+  #downloadBtn {
+    display: block;
+    margin: 20px auto 0;
+    /* margin-left: auto; */
+    /* margin-right: auto; */
+    /* width: 40%; */
+  }

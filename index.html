@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Phenix Converter</title>
+      <link rel="stylesheet" href="style.css" />
+   </head>
+   <body>
+      <div class="container">
+         <h1>تحويل ملف الكونتينر إلى Phenix</h1>
+
+         <div class="upload-box">
+            <input type="file" id="fileInput" accept=".xlsx" />
+            <button id="convertBtn">تحويل الملف</button>
+         </div>
+
+         <div class="stats" id="stats"></div>
+
+         <button id="downloadBtn" disabled>تنزيل ملف Phenix</button>
+         <div class="table-wrapper">
+            <table id="previewTable"></table>
+         </div>
+      </div>
+
+      <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+      <script src="excel.js"></script>
+      <script src="app.js"></script>
+   </body>
+</html>
