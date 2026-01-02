@@ -313,5 +313,5 @@ function getColorId(colorName) {
    }
 
    const key = colorName.trim().toUpperCase();
-   return colorIdMap[key] || "00";
+   return colorIdMap[key] || " ";
 }
