@@ -1,18 +1,414 @@
 [
    {
-      "ColorName" : "BLACK",
-      "ColorId" : "01"
+      "ColorId": "01",
+      "ColorName": "Black"
    },
    {
-      "ColorName" : "GREEN",
-      "ColorId" : "14"
+      "ColorId": "02",
+      "ColorName": "Silver"
    },
    {
-      "ColorName" : "WHITE",
-      "ColorId" : "10"
+      "ColorId": "03",
+      "ColorName": "Gold"
    },
    {
-      "ColorName" : "BEIGE",
-      "ColorId" : "04"
+      "ColorId": "04",
+      "ColorName": "Beige"
+   },
+   {
+      "ColorId": "05",
+      "ColorName": "Navy"
+   },
+   {
+      "ColorId": "06",
+      "ColorName": "Gray"
+   },
+   {
+      "ColorId": "06",
+      "ColorName": "Grey"
+   },
+   {
+      "ColorId": "07",
+      "ColorName": "Red"
+   },
+   {
+      "ColorId": "08",
+      "ColorName": "Blue"
+   },
+   {
+      "ColorId": "09",
+      "ColorName": "Fuchia"
+   },
+   {
+      "ColorId": "10",
+      "ColorName": "White"
+   },
+   {
+      "ColorId": "11",
+      "ColorName": "Champagne"
+   },
+   {
+      "ColorId": "11",
+      "ColorName": "CHAMPANE"
+   },
+   {
+      "ColorId": "12",
+      "ColorName": "Brown"
+   },
+   {
+      "ColorId": "13",
+      "ColorName": "Camel"
+   },
+   {
+      "ColorId": "14",
+      "ColorName": "Green"
+   },
+   {
+      "ColorId": "15",
+      "ColorName": "Orange"
+   },
+   {
+      "ColorId": "16",
+      "ColorName": "Phosphoric"
+   },
+   {
+      "ColorId": "17",
+      "ColorName": "Light golden"
+   },
+   {
+      "ColorId": "18",
+      "ColorName": "Khaki"
+   },
+   {
+      "ColorId": "19",
+      "ColorName": "Maroon"
+   },
+   {
+      "ColorId": "20",
+      "ColorName": "Bronze"
+   },
+   {
+      "ColorId": "21",
+      "ColorName": "Pink"
+   },
+   {
+      "ColorId": "22",
+      "ColorName": "Purple"
+   },
+   {
+      "ColorId": "23",
+      "ColorName": "Light Beige"
+   },
+   {
+      "ColorId": "24",
+      "ColorName": "OLIVE"
+   },
+   {
+      "ColorId": "25",
+      "ColorName": "Yellow"
+   },
+   {
+      "ColorId": "26",
+      "ColorName": "Rainbow"
+   },
+   {
+      "ColorId": "27",
+      "ColorName": "Platinum"
+   },
+   {
+      "ColorId": "28",
+      "ColorName": "Dark Brown"
+   },
+   {
+      "ColorId": "29",
+      "ColorName": "Copper"
+   },
+   {
+      "ColorId": "30",
+      "ColorName": "Bronette"
+   },
+   {
+      "ColorId": "31",
+      "ColorName": "Espresso"
+   },
+   {
+      "ColorId": "32",
+      "ColorName": "Red Brown"
+   },
+   {
+      "ColorId": "33",
+      "ColorName": "Off White"
+   },
+   {
+      "ColorId": "33",
+      "ColorName": "Off-White"
+   },
+   {
+      "ColorId": "34",
+      "ColorName": "Coffee"
+   },
+   {
+      "ColorId": "35",
+      "ColorName": "Dark Green"
+   },
+   {
+      "ColorId": "36",
+      "ColorName": "Nude"
+   },
+   {
+      "ColorId": "37",
+      "ColorName": "Tan"
+   },
+   {
+      "ColorId": "38",
+      "ColorName": "Pewter"
+   },
+   {
+      "ColorId": "39",
+      "ColorName": "Light Green"
+   },
+   {
+      "ColorId": "39",
+      "ColorName": "L.Green"
+   },
+   {
+      "ColorId": "40",
+      "ColorName": "MUD"
+   },
+   {
+      "ColorId": "41",
+      "ColorName": "Light Gray"
+   },
+   {
+      "ColorId": "42",
+      "ColorName": "Apricot"
+   },
+   {
+      "ColorId": "43",
+      "ColorName": "Dark Pink"
+   },
+   {
+      "ColorId": "44",
+      "ColorName": "Light Black"
+   },
+   {
+      "ColorId": "45",
+      "ColorName": "Army Green"
+   },
+   {
+      "ColorId": "46",
+      "ColorName": "Cream"
+   },
+   {
+      "ColorId": "47",
+      "ColorName": "Peach"
+   },
+   {
+      "ColorId": "48",
+      "ColorName": "F.Green"
+   },
+   {
+      "ColorId": "49",
+      "ColorName": "CORAL"
+   },
+   {
+      "ColorId": "50",
+      "ColorName": "Dark Navy"
+   },
+   {
+      "ColorId": "51",
+      "ColorName": "Dark Grey"
+   },
+   {
+      "ColorId": "52",
+      "ColorName": "L Blue"
+   },
+   {
+      "ColorId": "52",
+      "ColorName": "LT.BLUE"
+   },
+   {
+      "ColorId": "53",
+      "ColorName": "Rose Gold"
+   },
+   {
+      "ColorId": "54",
+      "ColorName": "Wine"
+   },
+   {
+      "ColorId": "55",
+      "ColorName": "Dark Gold"
+   },
+   {
+      "ColorId": "56",
+      "ColorName": "Sky Blue"
+   },
+   {
+      "ColorId": "57",
+      "ColorName": "Light Purple"
+   },
+   {
+      "ColorId": "58",
+      "ColorName": "Antique Gold"
+   },
+   {
+      "ColorId": "59",
+      "ColorName": "Antique Silver"
+   },
+   {
+      "ColorId": "60",
+      "ColorName": "Cuticolor"
+   },
+   {
+      "ColorId": "61",
+      "ColorName": "D-Black"
+   },
+   {
+      "ColorId": "62",
+      "ColorName": "D-Coffee"
+   },
+   {
+      "ColorId": "63",
+      "ColorName": "D-Maroon"
+   },
+   {
+      "ColorId": "64",
+      "ColorName": "D-Purple"
+   },
+   {
+      "ColorId": "65",
+      "ColorName": "L-Brown"
+   },
+   {
+      "ColorId": "66",
+      "ColorName": "L-Pink"
+   },
+   {
+      "ColorId": "66",
+      "ColorName": "L.Pink"
+   },
+   {
+      "ColorId": "66",
+      "ColorName": "LT.Pink"
+   },
+   {
+      "ColorId": "67",
+      "ColorName": "L-Yellow"
+   },
+   {
+      "ColorId": "68",
+      "ColorName": "Silvery Grey"
+   },
+   {
+      "ColorId": "69",
+      "ColorName": "Turquoise"
+   },
+   {
+      "ColorId": "70",
+      "ColorName": "Yellow Brown"
+   },
+   {
+      "ColorId": "71",
+      "ColorName": "Stone"
+   },
+   {
+      "ColorId": "72",
+      "ColorName": "S.BLACK"
+   },
+   {
+      "ColorId": "73",
+      "ColorName": "D Red"
+   },
+   {
+      "ColorId": "74",
+      "ColorName": "Black/White"
+   },
+   {
+      "ColorId": "75",
+      "ColorName": "Almond"
+   },
+   {
+      "ColorId": "76",
+      "ColorName": "K-serpentine"
+   },
+   {
+      "ColorId": "77",
+      "ColorName": "D Beige"
+   },
+   {
+      "ColorId": "78",
+      "ColorName": "D Pink"
+   },
+   {
+      "ColorId": "79",
+      "ColorName": "TIFFANY"
+   },
+   {
+      "ColorId": "80",
+      "ColorName": "L KHAKI"
+   },
+   {
+      "ColorId": "81",
+      "ColorName": "D KHAKI"
+   },
+   {
+      "ColorId": "82",
+      "ColorName": "GUN"
+   },
+   {
+      "ColorId": "83",
+      "ColorName": "multicolour"
+   },
+   {
+      "ColorId": "84",
+      "ColorName": "WHITE/BLACK"
+   },
+   {
+      "ColorId": "85",
+      "ColorName": "BLACK/CAMEL"
+   },
+   {
+      "ColorId": "86",
+      "ColorName": "CAMEL/BLACK"
+   },
+   {
+      "ColorId": "87",
+      "ColorName": "WHITE/CAMEL"
+   },
+   {
+      "ColorId": "88",
+      "ColorName": "D- BLUE"
+   },
+   {
+      "ColorId": "88",
+      "ColorName": "DK.BLUE"
+   },
+   {
+      "ColorId": "89",
+      "ColorName": "GRNNY"
+   },
+   {
+      "ColorId": "90",
+      "ColorName": "LEOPARD"
+   },
+   {
+      "ColorId": "91",
+      "ColorName": "L.GREY"
+   },
+   {
+      "ColorId": "92",
+      "ColorName": "L.COFFEE"
+   },
+   {
+      "ColorId": "93",
+      "ColorName": "COLOURFULL"
+   },
+   {
+      "ColorId": "94",
+      "ColorName": "TIGER"
+   },
+   {
+      "ColorId": "95",
+      "ColorName": "ZEBRA"
    }
 ]

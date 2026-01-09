@@ -6,6 +6,7 @@ const convertBtn = document.getElementById("convertBtn"); // زر بدء الت�
 const downloadBtn = document.getElementById("downloadBtn"); // زر التنزيل (معطل افتراضياً)
 const tableBody = document.querySelector("#previewTable tbody"); // جسم الجدول للعرض
 const stats = document.getElementById("stats"); // لعرض عدد الأسطر الناتجة
+let barcode = document.getElementById("startBarcode").value || "TBJ123";
 
 // متغير عام لتخزين البيانات المعالجة لتكون جاهزة للتنزيل لاحقاً
 let PhenixData = [];
@@ -14,29 +15,35 @@ let PhenixData = [];
 // 2. حدث النقر على زر التحويل
 // ==========================================
 convertBtn.onclick = async () => {
-   // أ) التحقق من وجود ملف
    const file = fileInput.files[0];
    if (!file) {
       alert("الرجاء اختيار ملف Excel أولاً!");
       return;
    }
 
-   // ب) قراءة الملف (عملية غير متزامنة تنتظر قراءة الملف بالكامل)
-   // تأتي الدالة readExcel من ملف excel.js
    const rawData = await readExcel(file);
    console.log("✅ تم قراءة البيانات الخام:", rawData);
 
-   await loadColorIds(); // تحميل الألوان أولاً
-   await loadClassItems(); // تحميل الأصناف أولاً
+   await loadColorIds();
+   await loadClassItems();
 
-   // ج) تحويل البيانات من شكل المصفوفة المعقدة إلى شكل مسطح (Flat)
-   PhenixData = transform(rawData);
+   // ✅ اقرأ القيم هنا (بعد اختيار المستخدم)
+   const transformType = document.getElementById("transformType").value;
+   barcode = document.getElementById("startBarcode").value || "TBJ123";
+
+   console.log("🔧 Transform Type:", transformType);
+   console.log("🏷️ Start Barcode:", barcode);
+
+   if (transformType === "bags") {
+      PhenixData = transformBags(rawData);
+   } else {
+      PhenixData = transform(rawData);
+   }
+
    console.log("🚀 البيانات بعد المعالجة (PhenixData):", PhenixData);
 
-   // د) عرض البيانات في الجدول للمراجعة
    renderTable(PhenixData);
 
-   // هـ) تحديث الإحصائيات وتفعيل زر التنزيل
    stats.innerText = `عدد الأسطر الناتجة: ${PhenixData.length}`;
    downloadBtn.disabled = false;
 };
@@ -66,6 +73,7 @@ function transform(data) {
    let currentTTL = 0;
    let currentPrice = 0;
    let currentAmount = 0;
+   // let barcode = "TBJ123";
 
    // ------------------------------------------------
    // 1) اكتشاف المقاسات من صف QTY
@@ -100,8 +108,9 @@ function transform(data) {
 
       // صف صنف جديد
       if (typeof itemCell === "string" && itemCell.trim() !== "") {
-         currentItemCode = itemCell.trim();
+         currentItemCode = itemCell.trim().replaceAll(/\s/g, "");
          currentClassCode = getItemClass(extractClassCode(currentItemCode));
+         barcode = nextCode(barcode);
          currentCTNS = Number(row.__EMPTY_2) || 0;
          currentCTNSQty = Number(row.__EMPTY_3) || 0;
          currentTTL = Number(row.__EMPTY_4) || 0;
@@ -132,6 +141,7 @@ function transform(data) {
 
             "ITEM NO": currentItemCode,
             ClassCode: currentClassCode,
+            Barcode: barcode,
             color: colorName,
             "Id Color": colorId,
 
@@ -161,12 +171,109 @@ function transform(data) {
 }
 
 // ==========================================
+
+// ==========================================
+function normalizeColorQuantities(colors, targetTotal) {
+   const originalTotal = colors.reduce((s, c) => s + c.qty, 0);
+   if (originalTotal === 0) return colors;
+
+   // 1) توزيع نسبي
+   let normalized = colors.map((c) => ({
+      color: c.color,
+      qty: Math.floor((c.qty / originalTotal) * targetTotal),
+   }));
+
+   // 2) إصلاح الفرق
+   let currentTotal = normalized.reduce((s, c) => s + c.qty, 0);
+   let diff = targetTotal - currentTotal;
+
+   let i = 0;
+   while (diff !== 0) {
+      normalized[i % normalized.length].qty += diff > 0 ? 1 : -1;
+      diff += diff > 0 ? -1 : 1;
+      i++;
+   }
+
+   return normalized;
+}
+function transformBags(data) {
+   console.log("👜 transformBags started");
+
+   const result = [];
+   //   let barcode = "TBJ123";
+
+   data.forEach((row, index) => {
+      const itemCode = row.__EMPTY; // ITEM NO
+      const colorsCell = row.__EMPTY_1; // colors string
+      const totalQty = Number(row.__EMPTY_4) || 0; // TOTAL / PCS
+      const price = Number(row.__EMPTY_5) || 0; // PRICE
+
+      // Debug دقيق (شغّله لو لزم)
+      // console.log(index, itemCode, colorsCell, totalQty, price);
+
+      if (
+         typeof itemCode !== "string" ||
+         typeof colorsCell !== "string" ||
+         totalQty <= 0 ||
+         price <= 0
+      ) {
+         return;
+      }
+      barcode = nextCode(barcode);
+      // ----------------------------------
+      // 1) تحليل خلية الألوان
+      // ----------------------------------
+      const colors = [];
+      const regex = /([a-zA-Z\s\-]+)\s*(\d+)/g;
+      let match;
+
+      while ((match = regex.exec(colorsCell)) !== null) {
+         colors.push({
+            color: match[1].trim().toUpperCase(),
+            qty: Number(match[2]),
+         });
+      }
+
+      if (colors.length === 0) return;
+
+      // ----------------------------------
+      // 2) توحيد المجموع مع TOTAL / PCS
+      // ----------------------------------
+      const normalizedColors = normalizeColorQuantities(colors, totalQty);
+
+      // ----------------------------------
+      // 3) إخراج الصفوف
+      // ----------------------------------
+      normalizedColors.forEach((c) => {
+         if (c.qty <= 0) return;
+         result.push({
+            PICTURE: "لا يوجد",
+            "ITEM NO": itemCode.trim(),
+            ClassCode: "لا يوجد",
+            color: c.color,
+            "Id Color": getColorId(c.color),
+            Barcode: barcode,
+            quantity: c.qty,
+            PRICE: price,
+            AMOUNT: c.qty * price,
+         });
+      });
+   });
+
+   console.log("👜 transformBags finished");
+   console.log("📦 rows:", result.length);
+
+   return result;
+}
+
+// ==========================================
 // 5. دالة رسم الجدول (UI Helper)
 // ==========================================
 const OUTPUT_COLUMNS = [
    { key: "PICTURE", label: "PICTURE" },
    { key: "ITEM NO", label: "ITEM NO" },
    { key: "ClassCode", label: "ClassCode" },
+   { key: "Barcode", label: "Barcode" },
    { key: "color", label: "Color" },
    { key: "Id Color", label: "Color ID" },
    { key: "CTNS", label: "CTNS" },
@@ -282,9 +389,7 @@ function getItemClass(classCode) {
 }
 
 // ==========================================
-// 7. دالة مساعدة لاستخراج اسم الصنف (Utility)
-// الهدف: إزالة الأرقام والحرف الأول للحصول على "تصنيف"
-// مثال: "ZX3020" -> تصبح "ZX" (حسب المنطق المكتوب) أو حسب الحروف غير الرقمية
+
 // ==========================================
 let colorIdMap = null;
 
@@ -313,5 +418,39 @@ function getColorId(colorName) {
    }
 
    const key = colorName.trim().toUpperCase();
-   return colorIdMap[key] || "00";
+   return colorIdMap[key] || "";
+}
+
+// ==========================================
+
+// ==========================================
+function nextCode(code) {
+   // فصل الجزء الحرفي عن الرقمي
+   let letters = code.slice(0, 3);
+   let number = parseInt(code.slice(3), 10);
+
+   number++;
+
+   // إذا تجاوزنا 999
+   if (number > 999) {
+      number = 0;
+      letters = incrementLetters(letters);
+   }
+
+   return letters + number.toString().padStart(3, "0");
+}
+
+function incrementLetters(str) {
+   let chars = str.split("");
+
+   for (let i = chars.length - 1; i >= 0; i--) {
+      if (chars[i] !== "Z") {
+         chars[i] = String.fromCharCode(chars[i].charCodeAt(0) + 1);
+         break;
+      } else {
+         chars[i] = "A";
+      }
+   }
+
+   return chars.join("");
 }
