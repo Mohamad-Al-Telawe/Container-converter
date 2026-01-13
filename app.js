@@ -109,7 +109,7 @@ function transform(data) {
       // صف صنف جديد
       if (typeof itemCell === "string" && itemCell.trim() !== "") {
          currentItemCode = itemCell.trim().replaceAll(/\s/g, "");
-         currentClassCode = getItemClass(extractClassCode(currentItemCode));
+         currentClassCode = extractClassCode(currentItemCode);
          barcode = nextCode(barcode);
          currentCTNS = Number(row.__EMPTY_2) || 0;
          currentCTNSQty = Number(row.__EMPTY_3) || 0;
