@@ -107,19 +107,21 @@ function transform(data) {
       const colorCell = row.__EMPTY_1; // COLOUR
 
       // صف صنف جديد
-      if (typeof itemCell === "string" && itemCell.trim() !== "") {
-         currentItemCode = itemCell.trim().replaceAll(/\s/g, "");
-         currentClassCode = getItemClass(extractClassCode(currentItemCode));
-         barcode = nextCode(barcode);
-         currentCTNS = Number(row.__EMPTY_2) || 0;
-         currentCTNSQty = Number(row.__EMPTY_3) || 0;
-         currentTTL = Number(row.__EMPTY_4) || 0;
-         currentPrice = Number(row.__EMPTY_5) || 0;
-         currentAmount = Number(row.__EMPTY_6) || 0;
+      if (itemCell !== 0 && itemCell !== null && itemCell !== undefined) {
+         const itemStr = String(itemCell).trim();
+         if (itemStr !== "") {
+            currentItemCode = itemStr.replaceAll(/\s/g, "");
+            currentClassCode = getItemClass(extractClassCode(currentItemCode));
+            barcode = nextCode(barcode);
+            currentCTNS = Number(row.__EMPTY_2) || 0;
+            currentCTNSQty = Number(row.__EMPTY_3) || 0;
+            currentTTL = Number(row.__EMPTY_4) || 0;
+            currentPrice = Number(row.__EMPTY_5) || 0;
+            currentAmount = Number(row.__EMPTY_6) || 0;
+         }
       }
 
-      if (!currentItemCode || !colorCell || typeof colorCell !== "string")
-         return;
+      if (!currentItemCode || !colorCell) return;
 
       const colorName = colorCell.trim();
       const colorId = getColorId(colorName);
@@ -212,13 +214,15 @@ function transformBags(data) {
       // console.log(index, itemCode, colorsCell, totalQty, price);
 
       if (
-         typeof itemCode !== "string" ||
-         typeof colorsCell !== "string" ||
+         itemCode === 0 ||
+         itemCode === null ||
+         itemCode === undefined ||
          totalQty <= 0 ||
          price <= 0
       ) {
          return;
       }
+
       barcode = nextCode(barcode);
       // ----------------------------------
       // 1) تحليل خلية الألوان
@@ -248,7 +252,7 @@ function transformBags(data) {
          if (c.qty <= 0) return;
          result.push({
             PICTURE: "لا يوجد",
-            "ITEM NO": itemCode.trim(),
+            "ITEM NO": String(itemCode).trim(),
             ClassCode: "لا يوجد",
             color: c.color,
             "Id Color": getColorId(c.color),

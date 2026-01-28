@@ -100,6 +100,10 @@
       "ColorName": "Light Beige"
    },
    {
+      "ColorId": "23",
+      "ColorName": "L-BEIGE"
+   },
+   {
       "ColorId": "24",
       "ColorName": "OLIVE"
    },
@@ -169,6 +173,10 @@
    },
    {
       "ColorId": "39",
+      "ColorName": "L-GREEN"
+   },
+   {
+      "ColorId": "39",
       "ColorName": "L.Green"
    },
    {
@@ -190,6 +198,10 @@
    {
       "ColorId": "44",
       "ColorName": "Light Black"
+   },
+   {
+      "ColorId": "44",
+      "ColorName": "L-BLACK"
    },
    {
       "ColorId": "45",
@@ -220,6 +232,14 @@
       "ColorName": "Dark Grey"
    },
    {
+      "ColorId": "51",
+      "ColorName": "D_Grey"
+   },
+   {
+      "ColorId": "51",
+      "ColorName": "D-Grey"
+   },
+   {
       "ColorId": "52",
       "ColorName": "L Blue"
    },
@@ -234,6 +254,10 @@
    {
       "ColorId": "54",
       "ColorName": "Wine"
+   },
+   {
+      "ColorId": "54",
+      "ColorName": "WINE RED"
    },
    {
       "ColorId": "55",

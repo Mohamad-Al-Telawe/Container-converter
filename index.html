@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <title>Phenix Converter</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+   <head>
+      <meta charset="UTF-8" />
+      <title>Phenix Converter</title>
+      <link rel="stylesheet" href="style.css" />
+   </head>
+   <body>
+      <div class="container">
+         <h1>تحويل ملف الكونتينر إلى Phenix</h1>
 
-  <div class="container">
-    <h1>تحويل ملف الكونتينر إلى Phenix</h1>
+         <div class="upload-box">
+            <input type="file" id="fileInput" accept=".xlsx" />
 
-    <div class="upload-box">
-      <input type="file" id="fileInput" accept=".xlsx" />
+            <!-- 🔽 اختيار نوع التحويل -->
+            <select id="transformType">
+               <option value="shoes" selected>أحذية (Shoes)</option>
+               <option value="bags">حقائب (Bags)</option>
+            </select>
 
-      <!-- 🔽 اختيار نوع التحويل -->
-      <select id="transformType">
-         <option value="bags">حقائب (Bags)</option>
-        <option value="shoes" selected>أحذية (Shoes)</option>
-      </select>
+            <!-- 🏷️ باركود البداية -->
+            <input
+               type="text"
+               id="startBarcode"
+               placeholder="Barcode البداية"
+               value="TBJ123"
+            />
 
-      <!-- 🏷️ باركود البداية -->
-      <input
-        type="text"
-        id="startBarcode"
-        placeholder="Barcode البداية"
-        value="TBJ123"
-      />
+            <button id="convertBtn">تحويل الملف</button>
+         </div>
 
-      <button id="convertBtn">تحويل الملف</button>
-    </div>
+         <div class="stats" id="stats"></div>
 
-    <div class="stats" id="stats"></div>
+         <button id="downloadBtn" disabled>تنزيل ملف Phenix</button>
 
-    <button id="downloadBtn" disabled>تنزيل ملف Phenix</button>
+         <div class="table-wrapper">
+            <table id="previewTable"></table>
+         </div>
+      </div>
 
-    <div class="table-wrapper">
-      <table id="previewTable"></table>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-  <script src="excel.js"></script>
-  <script src="app.js"></script>
-</body>
+      <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+      <script src="excel.js"></script>
+      <script src="app.js"></script>
+   </body>
 </html>
