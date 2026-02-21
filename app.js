@@ -36,6 +36,9 @@ convertBtn.onclick = async () => {
 
    if (transformType === "bags") {
       PhenixData = transformBags(rawData);
+   } else if (transformType === "shoes-confused") {
+      PhenixData = transformShoesConfused(rawData);
+   
    } else {
       PhenixData = transform(rawData);
    }
@@ -60,8 +63,8 @@ downloadBtn.onclick = () => {
 // 4. دالة التحويل الأساسية (Logic Core)
 // هذه الدالة تحول الجدول المحوري (Pivot-like) إلى جدول بيانات عادي
 // ==========================================
-function transform(data) {
-   console.log("🔁 transform started (FINAL OUTPUT)");
+function (data) {
+   console.log("🔁  started (FINAL OUTPUT)");
 
    const result = [];
 
@@ -166,7 +169,7 @@ function transform(data) {
       });
    });
 
-   console.log("✅ transform finished");
+   console.log("✅  finished");
    console.log("📦 rows:", result.length);
 
    return result;
@@ -198,7 +201,7 @@ function normalizeColorQuantities(colors, targetTotal) {
 
    return normalized;
 }
-function transformBags(data) {
+function Bags(data) {
    console.log("👜 transformBags started");
 
    const result = [];
@@ -268,6 +271,152 @@ function transformBags(data) {
    console.log("📦 rows:", result.length);
 
    return result;
+}
+
+function transformShoesConfused(data) {
+   console.log("🔁 transformShoesConfused started (DYNAMIC SIZES)");
+
+   const result = [];
+
+   let currentItemCode = null;
+   let currentClassCode = null;
+   let lastOutputItemCode = null; // لتتبع متى نضع بيانات الكرتونة
+   let currentCTNS = 0;
+   let currentCTNSQty = 0;
+   let currentTTL = 0;
+   let currentPrice = 0;
+   let currentAmount = 0;
+   let barcode = "TBJ123"; // قيمة ابتدائية، يمكن تعديلها حسب الحاجة
+
+   // متغير لتخزين خريطة المقاسات الحالية (يتم تحديثه كلما وجدنا صف مقاسات جديد)
+   let currentSizeMap = {};
+
+   // ------------------------------------------------
+   // المرور على البيانات سطرًا سطرًا
+   // ------------------------------------------------
+   data.forEach((row, index) => {
+      // 1️⃣ اكتشاف صف المقاسات الجديد (Dynamic Size Detection)
+      // الشرط: إما يحتوي على كلمة "QTY" في العمود 3
+      // أو: لا يوجد كود صنف ولا لون، ولكن يوجد أرقام في الأعمدة الأخرى (وهذا يغطي الحالة الثانية في مثالك)
+      const isExplicitQtyRow = row.__EMPTY_3 === "QTY";
+      
+      // فحص إذا كان السطر يبدو كسطر مقاسات (خالي من البيانات النصية الأساسية ويحوي أرقاماً)
+      // نتأكد أن العمود الأول والثاني فارغان لتجنب الخلط مع أسطر البيانات أو التوتال
+      const isImplicitSizeRow = (!row.__EMPTY && !row.__EMPTY_1 && hasNumericValues(row));
+
+      if (isExplicitQtyRow || isImplicitSizeRow) {
+         const newSizeMap = {};
+         let foundSizes = false;
+
+         Object.keys(row).forEach((key) => {
+            const val = row[key];
+            // المقاسات عادة تكون أرقاماً موجبة
+            // نتجاهل الأعمدة الأساسية (0-6) لأنها ليست مقاسات عادة
+            // (أو يمكن الاعتماد فقط على أن القيمة رقم)
+            if (typeof val === "number" && val > 0) {
+               // فلترة إضافية: نتأكد أنه ليس رقم الفهرس أو التوتال إذا كان في الأعمدة الأولى
+               // لكن في هيكل ملفك، المقاسات تأتي في الأعمدة __EMPTY_7 وما بعد
+               // للتبسيط، نأخذ كل رقم في هذا السطر
+               newSizeMap[key] = val;
+               foundSizes = true;
+            }
+         });
+
+         if (foundSizes) {
+            currentSizeMap = newSizeMap;
+            console.log(`📏 New sizes detected at row ${index}:`, currentSizeMap);
+            return; // ننتقل للسطر التالي، هذا السطر كان للعناوين فقط
+         }
+      }
+
+      // 2️⃣ استخراج بيانات الصنف (Parent Item)
+      const itemCell = row.__EMPTY; // ITEM NO
+      const colorCell = row.__EMPTY_1; // COLOUR
+
+      if (itemCell !== 0 && itemCell !== null && itemCell !== undefined) {
+         const itemStr = String(itemCell).trim();
+         // نتجاهل السطر إذا كان كلمة "TOTAL" أو نصوص توضيحية في النهاية
+         if (itemStr !== "" && !itemStr.includes("TOTAL") && !itemStr.includes("كشف")) {
+            currentItemCode = itemStr.replaceAll(/\s/g, "");
+            
+            // دوال مفترضة (تأكد أنها موجودة في الكود الخاص بك خارج هذه الدالة)
+            if (typeof extractClassCode === "function" && typeof getItemClass === "function") {
+               currentClassCode = getItemClass(extractClassCode(currentItemCode));
+            }
+            if (typeof nextCode === "function") {
+                barcode = nextCode(barcode);
+            }
+
+            currentCTNS = Number(row.__EMPTY_2) || 0;
+            currentCTNSQty = Number(row.__EMPTY_3) || 0;
+            currentTTL = Number(row.__EMPTY_4) || 0;
+            currentPrice = Number(row.__EMPTY_5) || 0;
+            currentAmount = Number(row.__EMPTY_6) || 0;
+         }
+      }
+
+      // حماية: إذا لم يتم تحديد مقاسات بعد، أو لا يوجد صنف/لون، نتجاوز
+      if (Object.keys(currentSizeMap).length === 0) return;
+      if (!currentItemCode || !colorCell || typeof colorCell !== 'string') return;
+
+      const colorName = colorCell.trim();
+      let colorId = "";
+      if (typeof getColorId === "function") {
+          colorId = getColorId(colorName);
+      }
+
+      // 3️⃣ تفكيك المقاسات بناءً على الخريطة الحالية (Unpivoting)
+      Object.entries(currentSizeMap).forEach(([colKey, size]) => {
+         const qty = Number(row[colKey]) || 0;
+         
+         if (qty > 0) {
+            const qtyCTNS = qty * currentCTNS;
+            const qtyCTNSPrice = qtyCTNS * currentPrice;
+
+            // تحديد هل هذا أول سطر للصنف لوضع التوتال مرة واحدة
+            const isFirstRowOfItem = currentItemCode !== lastOutputItemCode;
+
+            result.push({
+               PICTURE: "",
+               "ITEM NO": currentItemCode,
+               ClassCode: currentClassCode,
+               Barcode: barcode,
+               color: colorName,
+               "Id Color": colorId,
+
+               // البيانات الرأسية تظهر مرة واحدة لكل صنف
+               CTNS: isFirstRowOfItem ? currentCTNS : "",
+               "CTNS / QTY": isFirstRowOfItem ? currentCTNSQty : "",
+               TTL: currentTTL, 
+               PRICE: currentPrice,
+               AMOUNT: isFirstRowOfItem ? currentAmount : "",
+
+               // البيانات المتغيرة
+               size: size,
+               quantity: qty,
+               "quantity * CTNS": qtyCTNS,
+               "quantity * CTNS * PRICE": qtyCTNSPrice,
+            });
+
+            lastOutputItemCode = currentItemCode;
+         }
+      });
+   });
+
+   console.log("✅ transformShoesConfused finished");
+   console.log("📦 rows:", result.length);
+
+   return result;
+}
+
+// دالة مساعدة صغيرة للتحقق من وجود أرقام في السطر (لتحديد سطر المقاسات المخفي)
+function hasNumericValues(row) {
+   let count = 0;
+   Object.values(row).forEach(val => {
+      if (typeof val === 'number') count++;
+   });
+   // إذا كان هناك أكثر من 3 أرقام في السطر، نعتبره سطر مقاسات
+   return count >= 3;
 }
 
 // ==========================================
