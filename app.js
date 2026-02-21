@@ -63,7 +63,7 @@ downloadBtn.onclick = () => {
 // 4. دالة التحويل الأساسية (Logic Core)
 // هذه الدالة تحول الجدول المحوري (Pivot-like) إلى جدول بيانات عادي
 // ==========================================
-function (data) {
+function transform(data) {
    console.log("🔁  started (FINAL OUTPUT)");
 
    const result = [];
