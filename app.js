@@ -201,7 +201,7 @@ function normalizeColorQuantities(colors, targetTotal) {
 
    return normalized;
 }
-function Bags(data) {
+function transformBags(data) {
    console.log("👜 transformBags started");
 
    const result = [];
